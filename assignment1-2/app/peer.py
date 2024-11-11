@@ -100,7 +100,7 @@ class Peer:
             announce_url = decoded_torrent[b"announce"].decode()
                 
             try:
-                announce_url_down = announce_url + ":6880/announce" + "/download"
+                announce_url_down = "http://" + announce_url + ":6880/announce" + "/download"
                 response = requests.get(announce_url_down, params={"info_hash": info_hash})
              
                 # Kiểm tra mã trạng thái của phản hồi
@@ -369,21 +369,6 @@ class Peer:
             print(f"Merged temporary files into {destination}")
         except Exception as e:
             print(f"Error merging temporary files: {e}")
-
-    # def merge_temp_files(self, destination, total_pieces):
-    #     try:
-    #         with open(destination, "wb") as f_dest:
-    #             for piece_index in range(total_pieces):
-    #                 piece_filename = f"{destination}_piece_{piece_index}"
-    #                 if os.path.exists(piece_filename):
-    #                     with open(piece_filename, "rb") as f_piece:
-    #                         f_dest.write(f_piece.read())
-    #                     os.remove(piece_filename)  # Xóa tệp tạm thời sau khi ghép vào tệp hoàn chỉnh
-    #                 else:
-    #                     print(f"Temporary file {piece_filename} not found")
-    #         print(f"Merged temporary files into {destination}")
-    #     except Exception as e:
-    #         print(f"Error merging temporary files: {e}")
 
 def get_local_ip(interface='Ethernet'):
     # # Chạy lệnh ifconfig và lấy kết quả
