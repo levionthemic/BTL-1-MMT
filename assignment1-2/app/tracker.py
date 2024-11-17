@@ -119,32 +119,22 @@ class TrackerRequestHandler(BaseHTTPRequestHandler):
                     break
         return NULL
 
-def get_local_ip(interface='wlo1'):
-    # # Chạy lệnh ifconfig và lấy kết quả
-    # result = subprocess.run(['ipconfig', interface], capture_output=True, text=True)
+def get_local_ip():
+   # Sử dụng lệnh `ipconfig` trên Windows
+    stream = os.popen('ipconfig')
+    output = stream.read()
 
-    # # Phân tích kết quả để tìm địa chỉ IP
-    # ip_pattern = r'inet (\d+\.\d+\.\d+\.\d+)'
-    # match = re.search(ip_pattern, result.stdout)
-
-    # # Trả về địa chỉ IP nếu tìm thấy, nếu không trả về None
-    # if match:
-    #     return match.group(1)
-    # else:
-    #     return None
-    result = subprocess.run(['ipconfig'], capture_output=True, text=True)
-    # Tìm dòng chứa thông tin về interface
-    interface_line = f'IPv4 Address'
-    lines = result.stdout.splitlines()
-    for line in lines:
-        if interface_line in line:
-            return line.split(": ")[1]
+    # Tìm kiếm địa chỉ IPv4 trong kết quả
+    for line in output.split('\n'):
+        if "IPv4" in line:
+            ip = line.split(":")[1].strip()
+            return ip
     return None
    
 
 def start_tracker(port=6880):
     # Khởi tạo một máy chủ HTTP với cổng được chỉ định
-    server_address = (get_local_ip("Ethernet"), port)
+    server_address = (get_local_ip(), port)
     httpd = HTTPServer(server_address, TrackerRequestHandler)
     print(f"Tracker server is running on {get_local_ip()}:{port}")
 
