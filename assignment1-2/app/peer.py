@@ -104,7 +104,7 @@ class Peer:
 
             try:
                 # Gửi một HTTP GET lên tracker với info_hash là param
-                url_get = f'${tracker_url}:8080/announce/upload?info_hash=${info_hash}'
+                url_get = f'http://{tracker_url}:8080/announce/upload?info_hash=${info_hash}&port={self.port}'
                 response = requests.get(url_get)
 
                 if response.status_code == 200:
@@ -168,7 +168,7 @@ class Peer:
 
                         # Không xét trên peer hiện tại
                         if port != self.port:
-                            formatted_ip_addresses.append((ip, int(self.port)))
+                            formatted_ip_addresses.append((ip, int(port)))
 
                     print("Formatted IP addresses:", formatted_ip_addresses)
 
@@ -199,7 +199,7 @@ class Peer:
                             args=(
                                 ip_address, torrent_data, dest_file_path, 
                                 start_piece, end_piece, 
-                                url_get, total_pieces
+                                tracker_url, total_pieces
                             )
                         )
                         threads.append(thread)
@@ -223,19 +223,19 @@ class Peer:
             self, 
             ip_address, torrent_data, dest_file_path, 
             start_piece, end_piece, 
-            url_get, total_pieces
+            tracker_url, total_pieces
     ):
         for piece in range(start_piece, end_piece):
             self.download_piece(
                 ip_address, torrent_data, dest_file_path, 
-                str(piece), url_get, 
+                str(piece), tracker_url, 
                 total_pieces
             )
 
     def download_piece(
             self, 
             ip_address, torrent_data, dest_file_path, 
-            piece, url_get, 
+            piece, tracker_url, 
             total_pieces
     ):
         peer_ip, peer_port = ip_address
@@ -244,7 +244,7 @@ class Peer:
         sock = socket.create_connection((peer_ip, peer_port))
         
         info_hash = str(hashlib.sha1(torrent_data).hexdigest())
-        payload = info_hash + " " + url_get
+        payload = info_hash + " " + tracker_url
         sock.sendall(payload.encode('utf-8'))
         
         response = sock.recv(1024).decode('utf-8')
@@ -435,7 +435,7 @@ class Peer:
     def find_file_by_infohash(self, infohash, url):
         found_files = []
         file_paths = self.read_strings_from_file()
-        # Duyệt qua tất cả các tệp tin và thư mục trong đường dẫn start_path
+        # Duyệt qua tất cả các tệp tin và thư mục trong đường dẫn file_paths
         for file_path in file_paths:
             try:
                 # Kiểm tra quyền truy cập của tệp tin hoặc thư mục
