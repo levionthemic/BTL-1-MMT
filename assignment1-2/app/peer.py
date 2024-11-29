@@ -576,19 +576,19 @@ if __name__ == "__main__":
                         print(torrent_file_paths)
 
 
-                        # for torrent_file_path in torrent_file_paths:
-                        #     if os.path.isfile(torrent_file_path):
-                        #         # Tạo 1 luồng tải về 1 file torrent
-                        #         thread = threading.Thread(
-                        #             target=peer.download_torrent_file, 
-                        #             args=(
-                        #                 torrent_file_path, download_dir
-                        #             )
-                        #         )
-                        #         threads.append(thread)
-                        #         thread.start()
-                        #     else:
-                        #         print("Error: Torrent file not found.")
+                        for torrent_file_path in torrent_file_paths:
+                            if os.path.isfile(torrent_file_path):
+                                # Tạo 1 luồng tải về 1 file torrent
+                                thread = threading.Thread(
+                                    target=peer.download_torrent_file, 
+                                    args=(
+                                        torrent_file_path, download_dir
+                                    )
+                                )
+                                threads.append(thread)
+                                thread.start()
+                            else:
+                                print("Error: Torrent file not found.")
 
                         # # Chờ cho các luồng tải các piece
                         # for thread in threads:

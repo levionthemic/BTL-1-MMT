@@ -127,7 +127,7 @@ class Peer:
             torrent_file_path (string): Đường dẫn đến file torrent.
             download_dir (string): Đường dẫn đến thư mục chứa file tải về.
         """
-
+        print("Thread download file")
         # Tạo folder download_dir 
         os.makedirs(download_dir, exist_ok=True)
 
@@ -568,18 +568,44 @@ if __name__ == "__main__":
                         print("Invalid command: Missing file name.")
 
                 elif command.startswith("download"):
+                    # download download torrent/Data.pdf.torrent torrent/OIP.jfif.torrent
                     
+                    # if len(command_parts) >= 3:
+
+                    #     torrent_file_path = command_parts[1] # Đường dẫn file torrent
+                    #     download_dir = command_parts[2] # Đường dẫn thư mục lưu file tải về
+
+                    #     # Gửi yêu cầu tải file từ tracker
+                    #     if os.path.isfile(torrent_file_path):
+                    #         # Thực hiện tải file
+                    #         peer.download_torrent_file(torrent_file_path, download_dir)
+                    #     else:
+                    #         print("Error: Torrent file not found.")
                     if len(command_parts) >= 3:
+                        threads = []
+                        download_dir = command_parts[1] # Đường dẫn thư mục lưu file tải về
+                        torrent_file_paths = command_parts[2:]
+                        print(download_dir)
+                        print(torrent_file_paths)
 
-                        torrent_file_path = command_parts[1] # Đường dẫn file torrent
-                        download_dir = command_parts[2] # Đường dẫn thư mục lưu file tải về
 
-                        # Gửi yêu cầu tải file từ tracker
-                        if os.path.isfile(torrent_file_path):
-                            # Thực hiện tải file
-                            peer.download_torrent_file(torrent_file_path, download_dir)
-                        else:
-                            print("Error: Torrent file not found.")
+                        for torrent_file_path in torrent_file_paths:
+                            if os.path.isfile(torrent_file_path):
+                                # Tạo 1 luồng tải về 1 file torrent
+                                thread = threading.Thread(
+                                    target=peer.download_torrent_file, 
+                                    args=(
+                                        torrent_file_path, download_dir
+                                    )
+                                )
+                                threads.append(thread)
+                                thread.start()
+                            else:
+                                print("Error: Torrent file not found.")
+
+                        # Chờ cho các luồng tải các piece
+                        for thread in threads:
+                            thread.join()
            
         # Tạo 1 luồng xử lý input người dùng
         user_input_thread = threading.Thread(target=handle_user_input)
